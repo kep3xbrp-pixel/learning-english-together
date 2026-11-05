@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎮 English Adventure - Aprende Inglés Jugando</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#2563eb',
+                            purple: '#7c3aed',
+                            yellow: '#f59e0b',
+                            green: '#10b981',
+                            dark: '#0f172a',
+                            light: '#f8fafc'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        heading: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Styles & Interactive Elements */
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Card Effect */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .glass-card-interactive {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card-interactive:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 25px 50px -12px rgba(124, 58, 237, 0.35);
+            border-color: rgba(167, 139, 250, 0.4);
+        }
+
+        /* Animated Glowing Gradients */
+        .glow-button {
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+            transition: all 0.2s ease;
+        }
+        .glow-button:hover {
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
+            transform: translateY(-2px);
+        }
+        .glow-button:active {
+            transform: translateY(1px);
+        }
+
+        /* Custom Word Search Styles */
+        .ws-grid {
+            display: grid;
+            gap: 4px;
+            touch-action: none;
+        }
+        .ws-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: background-color 0.15s, transform 0.1s;
+        }
+        .ws-cell:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .ws-cell.selecting {
+            background: #f59e0b !important;
+            color: #0f172a !important;
+            transform: scale(0.95);
+        }
+        .ws-cell.found {
+            background: #10b981 !important;
+            color: #ffffff !important;
+            animation: pulseSuccess 0.4s ease;
+        }
+
+        /* Custom Crossword Grid Styles */
+        .cw-grid {
+            display: grid;
+            gap: 2px;
+            background: #0f172a;
+            padding: 6px;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        .cw-cell-container {
+            position: relative;
+            aspect-ratio: 1;
+        }
+        .cw-cell-black {
+            background-color: #1e293b;
+            border-radius: 4px;
+        }
+        .cw-cell-white {
+            background-color: #ffffff;
+            border-radius: 4px;
+            position: relative;
+        }
+        .cw-number {
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            font-size: 9px;
+            font-weight: 800;
+            color: #475569;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .cw-input {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #0f172a;
+            text-transform: uppercase;
+            background: transparent;
+            border-radius: 4px;
+            outline: none;
+        }
+        .cw-cell-white.highlighted {
+            background-color: #e0e7ff;
+        }
+        .cw-cell-white.correct {
+            background-color: #d1fae5 !important;
+        }
+        .cw-cell-white.correct .cw-input {
+            color: #065f46;
+        }
+        .cw-cell-white.incorrect {
+            background-color: #fee2e2 !important;
+        }
+        .cw-cell-white.incorrect .cw-input {
+            color: #991b1b;
+        }
+
+        /* Sentence Builder Chips */
+        .chip {
+            animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes pulseSuccess {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(124, 58, 237, 0.5);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(124, 58, 237, 0.8);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between items-center p-2 sm:p-4">
+
+    <!-- APP HEADER CONTAINER -->
+    <header id="app-header" class="w-full max-w-5xl my-2 flex justify-between items-center px-4 hidden">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="UIController.showMainMenu()">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-xl shadow-lg">
+                🎮
+            </div>
+            <div>
+                <h1 class="font-heading font-black text-xl sm:text-2xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-purple-300 to-blue-400">
+                    ENGLISH ADVENTURE
+                </h1>
+            </div>
+        </div>
+        <button id="btn-change-user" onclick="UIController.logoutPlayer()" class="text-xs bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-2 transition">
+            <i class="fa-solid fa-user-gear"></i> <span class="hidden sm:inline">Cambiar Jugador</span>
+        </button>
+    </header>
+
+    <!-- MAIN MAIN CONTAINER FOR SCREENS -->
+    <main id="app-container" class="w-full max-w-5xl flex-grow flex flex-col justify-center items-center py-2">
+
+        <!-- ========================================== -->
+        <!-- SCREEN 1: LOGIN / REGISTRATION SCREEN     -->
+        <!-- ========================================== -->
+        <section id="screen-login" class="w-full max-w-md glass-card rounded-3xl p-6 sm:p-8 my-auto text-center animate-fade-in">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-blue-600 via-purple-600 to-yellow-500 flex items-center justify-center text-4xl shadow-xl shadow-purple-950/50 transform hover:rotate-6 transition">
+                🎮
+            </div>
+            <h2 class="font-heading text-3xl font-black text-white mb-1">ENGLISH ADVENTURE</h2>
+            <p class="text-slate-300 text-sm mb-6">Aprende, practica y domina el inglés jugando.</p>
+
+            <form id="login-form" onsubmit="GameController.handleLogin(event)" class="space-y-4">
+                <div class="text-left">
+                    <label for="player-name-input" class="block text-xs font-bold uppercase tracking-wider text-purple-300 mb-2">
+                        Ingresa tu Nombre de Jugador:
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-3.5 text-slate-400">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" id="player-name-input" maxlength="24" required placeholder="Ej. Gabriel, Sofia..."
+                            class="w-full bg-slate-900/90 border border-slate-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 rounded-xl py-3 pl-11 pr-4 text-white placeholder-slate-500 outline-none transition font-semibold">
+                    </div>
+                    <p id="login-error" class="text-red-400 text-xs mt-1 hidden font-medium">Por favor ingresa un nombre válido.</p>
+                </div>
+
+                <button type="submit" class="w-full glow-button py-3.5 px-6 rounded-xl font-bold text-white tracking-wide text-base flex items-center justify-center gap-2">
+                    <span>Entrar al menú</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-slate-800 text-xs text-slate-400">
+                💾 Tu progreso se guardará automáticamente en este dispositivo.
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- SCREEN 2: MAIN MENU & PLAYER TICKET       -->
+        <!-- ========================================== -->
+        <section id="screen-main-menu" class="w-full space-y-6 hidden animate-fade-in">
+
+            <!-- BANNER WELCOME & PLAYER TICKET GRID -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+                
+                <!-- WELCOME BANNER (2 Cols on md) -->
+                <div class="md:col-span-2 glass-card rounded-2xl p-6 flex flex-col justify-center bg-gradient-to-r from-blue-900/40 via-purple-900/40 to-slate-900/60 relative overflow-hidden">
+                    <div class="relative z-10">
+                        <span class="bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-2">
+                            ¡Bienvenido de nuevo!
+                        </span>
+                        <h2 class="font-heading text-2xl sm:text-3xl font-black text-white mb-2">
+                            ¡Let's play English! 🚀
+                        </h2>
+                        <p class="text-slate-300 text-sm sm:text-base max-w-lg">
+                            Practica, juega y mejora tus habilidades en inglés a través de entretenidos minijuegos y retos interactivos.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- PERSONAL PLAYER TICKET (1 Col) STRICT REQUIREMENT COMPLIANT -->
+                <div class="glass-card rounded-2xl p-5 border-2 border-purple-500/30 flex flex-col justify-between relative overflow-hidden bg-slate-900/90 shadow-xl">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                        <div class="flex items-center gap-1.5 text-xs font-bold text-purple-300 tracking-wider uppercase">
+                            <i class="fa-solid fa-ticket text-yellow-400"></i>
+                            <span>MI TICKET DE JUGADOR</span>
+                        </div>
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    </div>
+
+                    <!-- 4 MANDATORY ELEMENTS ONLY -->
+                    <div class="space-y-3">
+                        <!-- 1 & 2: AVATAR + PLAYER NAME -->
+                        <div class="flex items-center gap-3">
+                            <div id="ticket-avatar" class="w-12 h-12 rounded-xl bg-slate-800 border border-purple-400/30 flex items-center justify-center text-2xl shadow">
+                                🐼
+                            </div>
+                            <div class="overflow-hidden">
+                                <p class="text-xs text-slate-400 font-semibold uppercase">Jugador</p>
+                                <p id="ticket-name" class="font-heading font-black text-lg text-white truncate">
+                                    Gabriel
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 3: PUNTUACIÓN ACUMULADA -->
+                        <div class="bg-slate-800/80 rounded-xl p-2.5 border border-slate-700/60 flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                                ⭐ PUNTUACIÓN ACUMULADA:
+                            </span>
+                            <span id="ticket-score" class="font-heading font-black text-yellow-400 text-base">
+                                0
+                            </span>
+                        </div>
+
+                        <!-- 4: JUEGOS GANADOS -->
+                        <div class="bg-slate-800/80 rounded-xl p-2.5 border border-slate-700/60 flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                                🏆 JUEGOS GANADOS:
+                            </span>
+                            <span id="ticket-wins" class="font-heading font-black text-emerald-400 text-base">
+                                0
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- CATEGORIES SECTION (6 GRAMMAR CATEGORIES) -->
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="fa-solid fa-layer-group text-purple-400"></i>
+                    <h3 class="font-heading font-bold text-lg text-white">Categorías Gramaticales</h3>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    
+                    <!-- CAT 1: PERSONAL PRONOUNS -->
+                    <div onclick="GameController.startMinigame('pronouns')" class="glass-card glass-card-interactive rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+                                👤
+                            </div>
+                            <h4 class="font-heading font-bold text-base text-white mb-1">1. PERSONAL PRONOUNS</h4>
+                            <p class="text-xs text-slate-300 mb-3">Aprende el uso correcto de I, You, He, She, It, We, They.</p>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-bold text-blue-400 pt-2 border-t border-slate-800">
+                            <span>Practicar Pronombres</span>
+                            <i class="fa-solid fa-chevron-right group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+
+                    <!-- CAT 2: SINGULAR AND PLURAL -->
+                    <div onclick="GameController.startMinigame('plural')" class="glass-card glass-card-interactive rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-purple-600/20 border border-purple-500/30 text-purple-400 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+                                📦
+                            </div>
+                            <h4 class="font-heading font-bold text-base text-white mb-1">2. SINGULAR AND PLURAL</h4>
+                            <p class="text-xs text-slate-300 mb-3">Reglas gramaticales para la formación de sustantivos plurales.</p>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-bold text-purple-400 pt-2 border-t border-slate-800">
+                            <span>Practicar Plurales</span>
+                            <i class="fa-solid fa-chevron-right group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+
+                    <!-- CAT 3: VERB TO BE -->
+                    <div onclick="GameController.startMinigame('tobe')" class="glass-card glass-card-interactive rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-yellow-600/20 border border-yellow-500/30 text-yellow-400 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+                                ⚡
+                            </div>
+                            <h4 class="font-heading font-bold text-base text-white mb-1">3. VERB TO BE</h4>
+                            <p class="text-xs text-slate-300 mb-3">Domina el uso de Am, Is y Are en oraciones y preguntas.</p>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-bold text-yellow-400 pt-2 border-t border-slate-800">
+                            <span>Practicar Verb To Be</span>
+                            <i class="fa-solid fa-chevron-right group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+
+                    <!-- CAT 4: ARTICLES A AND AN -->
+                    <div onclick="GameController.startMinigame('articles')" class="glass-card glass-card-interactive rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+                                🍎
+                            </div>
+                            <h4 class="font-heading font-bold text-base text-white mb-1">4. ARTICLES A AND AN</h4>
+                            <p class="text-xs text-slate-300 mb-3">Reglas y diferencias para usar correctamente los artículos A y AN.</p>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-bold text-emerald-400 pt-2 border-t border-slate-800">
+                            <span>Practicar Artículos</span>
+                            <i class="fa-solid fa-chevron-right group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+
+                    <!-- CAT 5: SENTENCE STRUCTURE -->
+                    <div onclick="GameController.startMinigame('structure')" class="glass-card glass-card-interactive rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+                                🧩
+                            </div>
+                            <h4 class="font-heading font-bold text-base text-white mb-1">5. SENTENCE STRUCTURE</h4>
+                            <p class="text-xs text-slate-300 mb-3">Ordena las palabras correctamente (Sujeto + Verbo + Complemento).</p>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-bold text-indigo-400 pt-2 border-t border-slate-800">
+                            <span>Ordenar Oraciones</span>
+                            <i class="fa-solid fa-chevron-right group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+
+                    <!-- CAT 6: NEGATIVE SENTENCES -->
+                    <div onclick="GameController.startMinigame('negatives')" class="glass-card glass-card-interactive rounded-2xl p-5 cursor-pointer flex flex-col justify-between group">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-rose-600/20 border border-rose-500/30 text-rose-400 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+                                🚫
+                            </div>
+                            <h4 class="font-heading font-bold text-base text-white mb-1">6. NEGATIVE SENTENCES</h4>
+                            <p class="text-xs text-slate-300 mb-3">Aprende la construcción de oraciones negativas con Not, Don't y Doesn't.</p>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-bold text-rose-400 pt-2 border-t border-slate-800">
+                            <span>Practicar Negaciones</span>
+                            <i class="fa-solid fa-chevron-right group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- SPECIAL GAMES SECTION -->
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="fa-solid fa-star text-yellow-400"></i>
+                    <h3 class="font-heading font-bold text-lg text-white">Juegos Especiales</h3>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    
+                    <!-- SPECIAL 1: WORD SEARCH -->
+                    <div onclick="GameController.startMinigame('wordsearch')" class="glass-card glass-card-interactive rounded-2xl p-5 cursor-pointer bg-gradient-to-br from-emerald-900/30 to-slate-900 border-emerald-500/30 flex flex-col justify-between group">
+                        <div>
+                            <span class="text-3xl mb-2 block">🔎</span>
+                            <h4 class="font-heading font-bold text-base text-emerald-300 mb-1">Sopa de letras</h4>
+                            <p class="text-xs text-slate-300 mb-3">Encuentra términos gramaticales ocultos en la cuadrícula.</p>
+                        </div>
+                        <button class="w-full bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 hover:text-white py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                            <span>Buscar Palabras</span>
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                    </div>
+
+                    <!-- SPECIAL 2: CROSSWORD -->
+                    <div onclick="GameController.startMinigame('crossword')" class="glass-card glass-card-interactive rounded-2xl p-5 cursor-pointer bg-gradient-to-br from-purple-900/30 to-slate-900 border-purple-500/30 flex flex-col justify-between group">
+                        <div>
+                            <span class="text-3xl mb-2 block">✏️</span>
+                            <h4 class="font-heading font-bold text-base text-purple-300 mb-1">Crucigrama</h4>
+                            <p class="text-xs text-slate-300 mb-3">Resuelve las pistas y completa las palabras gramaticales.</p>
+                        </div>
+                        <button class="w-full bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                            <span>Resolver Crucigrama</span>
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                    </div>
+
+                    <!-- SPECIAL 3: GENERAL CHALLENGE -->
+                    <div onclick="GameController.startMinigame('master')" class="glass-card glass-card-interactive rounded-2xl p-5 cursor-pointer bg-gradient-to-br from-yellow-900/30 to-slate-900 border-yellow-500/30 flex flex-col justify-between group">
+                        <div>
+                            <span class="text-3xl mb-2 block">🌟</span>
+                            <h4 class="font-heading font-bold text-base text-yellow-300 mb-1">Reto general</h4>
+                            <p class="text-xs text-slate-300 mb-3">Desafío completo con preguntas de todas las categorías.</p>
+                        </div>
+                        <button class="w-full bg-yellow-600/30 hover:bg-yellow-600 text-yellow-200 hover:text-white py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                            <span>Iniciar Reto</span>
+                            <i class="fa-solid fa-bolt"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- SCREEN 3: GAMEPLAY ARENA                  -->
+        <!-- ========================================== -->
+        <section id="screen-gameplay" class="w-full glass-card rounded-3xl p-4 sm:p-6 hidden animate-fade-in my-auto">
+            
+            <!-- GAMEPLAY NAVBAR -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-6">
+                <button onclick="UIController.confirmExitGame()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl flex items-center gap-2 transition font-semibold">
+                    <i class="fa-solid fa-arrow-left"></i> Volver al Menú
+                </button>
+                <div class="text-center">
+                    <span id="gameplay-title" class="font-heading font-black text-lg text-white block">CATEGORÍA</span>
+                    <span id="gameplay-progress" class="text-xs text-purple-300 font-bold">Pregunta 1 de 5</span>
+                </div>
+                <div class="bg-yellow-500/10 border border-yellow-500/30 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                    <span class="text-sm">⭐</span>
+                    <span id="gameplay-score" class="font-heading font-bold text-yellow-400 text-sm">0 pts</span>
+                </div>
+            </div>
+
+            <!-- DYNAMIC MINIGAME CONTAINER -->
+            <div id="minigame-container" class="min-h-[320px] flex flex-col justify-center items-center">
+                <!-- Dynamic HTML injects here -->
+            </div>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- SCREEN 4: COMPLETION / VICTORY SCREEN      -->
+        <!-- ========================================== -->
+        <section id="screen-completion" class="w-full max-w-md glass-card rounded-3xl p-6 sm:p-8 text-center hidden animate-fade-in my-auto">
+            <div class="w-24 h-24 mx-auto mb-4 rounded-3xl bg-gradient-to-tr from-yellow-400 via-amber-500 to-yellow-600 flex items-center justify-center text-5xl shadow-2xl shadow-yellow-500/20 animate-bounce">
+                🏆
+            </div>
+            <h2 class="font-heading text-3xl font-black text-white mb-1">¡Excelente Trabajo!</h2>
+            <p id="completion-challenge-name" class="text-purple-300 font-bold text-lg mb-4">Has completado la actividad</p>
+
+            <div class="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 mb-6 space-y-3">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-400">Puntos ganados en esta partida:</span>
+                    <span id="completion-earned-points" class="font-bold text-yellow-400 text-lg">+0 pts</span>
+                </div>
+                <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-300 text-xs font-semibold flex items-center gap-2 text-left">
+                    <i class="fa-solid fa-circle-check text-base"></i>
+                    <span>¡Tu ticket personal de jugador ha sido actualizado con tus logros!</span>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="UIController.showMainMenu()" class="w-full glow-button py-3.5 px-6 rounded-xl font-bold text-white text-base flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Volver al Menú Principal</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="w-full text-center py-3 text-xs text-slate-400">
+        ENGLISH ADVENTURE &copy; 2026 • Aprende Inglés Jugando
+    </footer>
+
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT GAME ENGINE CODE                -->
+    <!-- ========================================== -->
+    <script>
+        /**
+         * GAME DATA BANK
+         * Contains structured exercises for all 6 categories + special games.
+         */
+        const GAME_DATA = {
+            pronouns: [
+                {
+                    type: 'mc',
+                    question: '¿Qué pronombre personal reemplaza a "Sarah"?',
+                    options: ['He', 'She', 'It', 'They'],
+                    answer: 'She',
+                    explanation: 'Usamos "She" (Ella) para referirnos a una mujer o niña.'
+                },
+                {
+                    type: 'tf',
+                    question: '¿El pronombre "They" se usa únicamente para objetos inanimados?',
+                    answer: false,
+                    explanation: 'Falso. "They" se usa para personas, animales u objetos en plural.'
+                },
+                {
+                    type: 'fill',
+                    question: '_____ am a student at the academy.',
+                    options: ['He', 'She', 'I', 'They'],
+                    answer: 'I',
+                    explanation: 'El pronombre "I" siempre se combina con "am" en el verbo To Be.'
+                },
+                {
+                    type: 'order',
+                    question: 'Ordena las palabras para formar la oración:',
+                    words: ['She', 'is', 'my', 'best', 'friend.'],
+                    answer: 'She is my best friend.',
+                    explanation: 'Estructura: Sujeto (She) + Verbo (is) + Complemento (my best friend).'
+                }
+            ],
+            plural: [
+                {
+                    type: 'mc',
+                    question: '¿Cuál es la forma plural correcta de "Cat"?',
+                    options: ['Cates', 'Cats', 'Caties', 'Catss'],
+                    answer: 'Cats',
+                    explanation: 'Para la mayoría de los sustantivos, simplemente agregamos una "s" al final.'
+                },
+                {
+                    type: 'mc',
+                    question: '¿Cuál es el plural de "Box"?',
+                    options: ['Boxs', 'Boxies', 'Boxes', 'Boxen'],
+                    answer: 'Boxes',
+                    explanation: 'Los sustantivos que terminan en -x agregan -es para formar el plural.'
+                },
+                {
+                    type: 'tf',
+                    question: '¿El plural de la palabra "Child" es "Childs"?',
+                    answer: false,
+                    explanation: 'Falso. "Child" es un sustantivo irregular y su plural es "Children".'
+                },
+                {
+                    type: 'fill',
+                    question: 'There are three _____ on the table.',
+                    options: ['apple', 'apples', 'appless', 'an apple'],
+                    answer: 'apples',
+                    explanation: 'Usamos el plural "apples" porque se refiere a tres elementos.'
+                }
+            ],
+            tobe: [
+                {
+                    type: 'fill',
+                    question: 'He _____ a very good doctor.',
+                    options: ['am', 'is', 'are', 'be'],
+                    answer: 'is',
+                    explanation: 'Usamos "is" para las terceras personas del singular (He, She, It).'
+                },
+                {
+                    type: 'mc',
+                    question: '¿Cuál es la forma correcta para "We"?',
+                    options: ['We am', 'We is', 'We are', 'We be'],
+                    answer: 'We are',
+                    explanation: 'Usamos "are" con los pronombres en plural (We, You, They).'
+                },
+                {
+                    type: 'tf',
+                    question: '¿Es correcta la oración "They is happy today"?',
+                    answer: false,
+                    explanation: 'Falso. La forma correcta es "They ARE happy today".'
+                },
+                {
+                    type: 'order',
+                    question: 'Construye la pregunta correctamente:',
+                    words: ['Are', 'you', 'ready', 'for', 'school?'],
+                    answer: 'Are you ready for school?',
+                    explanation: 'En preguntas con Verb To Be, el verbo va al principio: Are + sujeto + complemento.'
+                }
+            ],
+            articles: [
+                {
+                    type: 'fill',
+                    question: 'I want to eat _____ apple.',
+                    options: ['a', 'an', 'the', 'some'],
+                    answer: 'an',
+                    explanation: 'Usamos "AN" antes de palabras que comienzan con sonido de vocal (Apple).'
+                },
+                {
+                    type: 'fill',
+                    question: 'She bought _____ new car yesterday.',
+                    options: ['a', 'an', 'two', 'any'],
+                    answer: 'a',
+                    explanation: 'Usamos "A" antes de palabras que comienzan con sonido de consonante (New).'
+                },
+                {
+                    type: 'tf',
+                    question: '¿Se debe escribir "An umbrella"?',
+                    answer: true,
+                    explanation: 'Verdadero. "Umbrella" inicia con sonido vocálico, por lo que lleva "an".'
+                },
+                {
+                    type: 'mc',
+                    question: 'Selecciona la opción correcta:',
+                    options: ['a elephant', 'an elephant', 'a hour', 'an book'],
+                    answer: 'an elephant',
+                    explanation: '"Elephant" comienza con vocal, por lo que requiere el artículo "an".'
+                }
+            ],
+            structure: [
+                {
+                    type: 'order',
+                    question: 'Ordena las palabras para estructurar la oración:',
+                    words: ['The', 'dog', 'barks', 'at', 'night.'],
+                    answer: 'The dog barks at night.',
+                    explanation: 'Sujeto (The dog) + Verbo (barks) + Complemento (at night).'
+                },
+                {
+                    type: 'order',
+                    question: 'Ordena la siguiente frase afirmativa:',
+                    words: ['We', 'play', 'soccer', 'every', 'Sunday.'],
+                    answer: 'We play soccer every Sunday.',
+                    explanation: 'Sujeto (We) + Verbo (play) + Objeto/Complemento (soccer every Sunday).'
+                },
+                {
+                    type: 'mc',
+                    question: '¿Cuál es el orden estándar de una oración afirmativa en inglés?',
+                    options: ['Verbo + Sujeto + Complemento', 'Sujeto + Verbo + Complemento', 'Complemento + Verbo + Sujeto', 'Sujeto + Complemento + Verbo'],
+                    answer: 'Sujeto + Verbo + Complemento',
+                    explanation: 'El orden básico en inglés es Sujeto + Verbo + Objeto/Complemento.'
+                }
+            ],
+            negatives: [
+                {
+                    type: 'fill',
+                    question: 'She _____ like spicy food.',
+                    options: ['don\'t', 'doesn\'t', 'not', 'isn\'t'],
+                    answer: 'doesn\'t',
+                    explanation: 'Usamos "doesn\'t" para oraciones negativas con She/He/It en presente simple.'
+                },
+                {
+                    type: 'fill',
+                    question: 'They _____ have a car.',
+                    options: ['doesn\'t', 'don\'t', 'not', 'are not'],
+                    answer: 'don\'t',
+                    explanation: 'Usamos "don\'t" para oraciones negativas en presente con They/We/You/I.'
+                },
+                {
+                    type: 'tf',
+                    question: '¿La oración "I am not tired" está escrita correctamente?',
+                    answer: true,
+                    explanation: 'Verdadero. Para negar con el Verb To Be se agrega "not" después de am/is/are.'
+                }
+            ]
+        };
+
+        // AVATAR POOL FOR RANDOM ASSIGNMENT
+        const AVATARS = ['🐼', '🦊', '🦁', '🐯', '🐨', '🦄', '🐶', '🐵', '🦉', '🐸'];
+
+        /**
+         * 1. GAME STORE MODULE (LOCAL STORAGE & PROFILE SYSTEM)
+         */
+        const GameStore = {
+            getStorageKey(name) {
+                return 'eng_adv_player_' + name.trim().toLowerCase();
+            },
+
+            loadProfile(name) {
+                const key = this.getStorageKey(name);
+                const raw = localStorage.getItem(key);
+                if (raw) {
+                    try { return JSON.parse(raw); } catch(e) {}
+                }
+                // Generate New Profile if non-existent
+                const randomAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
+                const newProfile = {
+                    name: name.trim(),
+                    avatar: randomAvatar,
+                    score: 0,
+                    wins: 0
+                };
+                this.saveProfile(newProfile);
+                return newProfile;
+            },
+
+            saveProfile(profile) {
+                if (!profile || !profile.name) return;
+                const key = this.getStorageKey(profile.name);
+                localStorage.setItem(key, JSON.stringify(profile));
+            }
+        };
+
+        /**
+         * 2. UI CONTROLLER MODULE (SCREEN NAVIGATION & TICKET UPDATES)
+         */
+        const UIController = {
+            currentPlayer: null,
+
+            init() {
+                // Check if last user was saved
+                const lastUser = localStorage.getItem('eng_adv_last_active_user');
+                if (lastUser) {
+                    this.currentPlayer = GameStore.loadProfile(lastUser);
+                    this.showMainMenu();
+                } else {
+                    this.showScreen('screen-login');
+                }
+            },
+
+            showScreen(screenId) {
+                const screens = ['screen-login', 'screen-main-menu', 'screen-gameplay', 'screen-completion'];
+                screens.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.add('hidden');
+                });
+                
+                const header = document.getElementById('app-header');
+                if (screenId === 'screen-login') {
+                    header.classList.add('hidden');
+                } else {
+                    header.classList.remove('hidden');
+                }
+
+                const target = document.getElementById(screenId);
+                if (target) target.classList.remove('hidden');
+            },
+
+            updateTicketDisplay() {
+                if (!this.currentPlayer) return;
+                document.getElementById('ticket-name').innerText = this.currentPlayer.name;
+                document.getElementById('ticket-avatar').innerText = this.currentPlayer.avatar;
+                document.getElementById('ticket-score').innerText = this.currentPlayer.score;
+                document.getElementById('ticket-wins').innerText = this.currentPlayer.wins;
+            },
+
+            showMainMenu() {
+                this.updateTicketDisplay();
+                this.showScreen('screen-main-menu');
+            },
+
+            logoutPlayer() {
+                localStorage.removeItem('eng_adv_last_active_user');
+                this.currentPlayer = null;
+                document.getElementById('player-name-input').value = '';
+                this.showScreen('screen-login');
+            },
+
+            confirmExitGame() {
+                if (confirm("¿Estás seguro de que deseas salir? Tu progreso no guardado en esta partida se perderá.")) {
+                    this.showMainMenu();
+                }
+            }
+        };
+
+        /**
+         * 3. GAME CONTROLLER MODULE (SESSION LOGIC & SCORING)
+         */
+        const GameController = {
+            currentSession: null,
+
+            handleLogin(e) {
+                e.preventDefault();
+                const input = document.getElementById('player-name-input');
+                const name = input.value.trim();
+                const err = document.getElementById('login-error');
+
+                if (!name || name.length > 24) {
+                    err.classList.remove('hidden');
+                    return;
+                }
+                err.classList.add('hidden');
+
+                const profile = GameStore.loadProfile(name);
+                UIController.currentPlayer = profile;
+                localStorage.setItem('eng_adv_last_active_user', profile.name);
+
+                UIController.showMainMenu();
+            },
+
+            startMinigame(categoryKey) {
+                this.currentSession = {
+                    category: categoryKey,
+                    pointsEarned: 0,
+                    currentIndex: 0,
+                    isCompleted: false,
+                    hasWonRegistered: false
+                };
+
+                document.getElementById('gameplay-score').innerText = '0 pts';
+
+                if (categoryKey === 'wordsearch') {
+                    MinigameEngine.renderWordSearch();
+                } else if (categoryKey === 'crossword') {
+                    MinigameEngine.renderCrossword();
+                } else {
+                    let questions = [];
+                    if (categoryKey === 'master') {
+                        // Pick random questions from all categories
+                        Object.keys(GAME_DATA).forEach(k => {
+                            questions.push(...GAME_DATA[k]);
+                        });
+                        questions = questions.sort(() => 0.5 - Math.random()).slice(0, 5);
+                    } else {
+                        questions = GAME_DATA[categoryKey] || [];
+                    }
+                    this.currentSession.questions = questions;
+                    MinigameEngine.renderStandardQuestion();
+                }
+
+                UIController.showScreen('screen-gameplay');
+            },
+
+            addPoints(amount) {
+                if (!this.currentSession) return;
+                this.currentSession.pointsEarned += amount;
+                document.getElementById('gameplay-score').innerText = `${this.currentSession.pointsEarned} pts`;
+            },
+
+            finishGame(title) {
+                if (!this.currentSession || this.currentSession.hasWonRegistered) return;
+
+                // STRICT RULE: Increment games won ONLY ONCE per fully completed game session
+                this.currentSession.hasWonRegistered = true;
+                this.currentSession.isCompleted = true;
+
+                // Update Player Profile in LocalStorage
+                UIController.currentPlayer.score += this.currentSession.pointsEarned;
+                UIController.currentPlayer.wins += 1;
+                GameStore.saveProfile(UIController.currentPlayer);
+
+                // Update Completion Screen
+                document.getElementById('completion-challenge-name').innerText = title;
+                document.getElementById('completion-earned-points').innerText = `+${this.currentSession.pointsEarned} pts`;
+
+                // Render Completion Screen
+                UIController.showScreen('screen-completion');
+            }
+        };
+
+        /**
+         * 4. MINIGAME ENGINE MODULE (EXERCISES, WORD SEARCH, CROSSWORD)
+         */
+        const MinigameEngine = {
+            
+            // RENDER STANDARD QUESTIONS (MC, TF, FILL, ORDER)
+            renderStandardQuestion() {
+                const session = GameController.currentSession;
+                const questions = session.questions;
+                const index = session.currentIndex;
+
+                if (index >= questions.length) {
+                    GameController.finishGame('Categoría Completada');
+                    return;
+                }
+
+                const q = questions[index];
+                document.getElementById('gameplay-title').innerText = session.category.toUpperCase();
+                document.getElementById('gameplay-progress').innerText = `Pregunta ${index + 1} de ${questions.length}`;
+
+                const container = document.getElementById('minigame-container');
+                container.innerHTML = '';
+
+                const qCard = document.createElement('div');
+                qCard.className = 'w-full max-w-xl text-center space-y-6';
+
+                qCard.innerHTML = `
+                    <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-700/80 shadow-lg">
+                        <span class="text-xs font-extrabold text-purple-400 uppercase tracking-wider block mb-2">Ejercicio de Práctica</span>
+                        <h3 class="text-xl sm:text-2xl font-bold text-white">${q.question}</h3>
+                    </div>
+                    <div id="interactive-area" class="w-full"></div>
+                    <div id="feedback-area" class="hidden rounded-2xl p-4 text-left font-semibold text-sm animate-fade-in"></div>
+                    <button id="btn-next-q" onclick="MinigameEngine.nextQuestion()" class="hidden w-full glow-button py-3 rounded-xl font-bold text-white flex items-center justify-center gap-2">
+                        <span>Siguiente Pregunta</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                `;
+
+                container.appendChild(qCard);
+                const area = document.getElementById('interactive-area');
+
+                if (q.type === 'mc' || q.type === 'fill') {
+                    const grid = document.createElement('div');
+                    grid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3';
+                    q.options.forEach(opt => {
+                        const btn = document.createElement('button');
+                        btn.className = 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-3.5 px-4 rounded-xl transition text-base flex items-center justify-center';
+                        btn.innerText = opt;
+                        btn.onclick = () => this.checkChoiceAnswer(opt, q.answer, q.explanation, btn);
+                        grid.appendChild(btn);
+                    });
+                    area.appendChild(grid);
+                } else if (q.type === 'tf') {
+                    const grid = document.createElement('div');
+                    grid.className = 'grid grid-cols-2 gap-4 max-w-xs mx-auto';
+
+                    const btnTrue = document.createElement('button');
+                    btnTrue.className = 'bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/40 font-bold py-4 rounded-2xl text-lg transition';
+                    btnTrue.innerText = 'TRUE';
+                    btnTrue.onclick = () => this.checkChoiceAnswer(true, q.answer, q.explanation, btnTrue);
+
+                    const btnFalse = document.createElement('button');
+                    btnFalse.className = 'bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 border border-rose-500/40 font-bold py-4 rounded-2xl text-lg transition';
+                    btnFalse.innerText = 'FALSE';
+                    btnFalse.onclick = () => this.checkChoiceAnswer(false, q.answer, q.explanation, btnFalse);
+
+                    grid.appendChild(btnTrue);
+                    grid.appendChild(btnFalse);
+                    area.appendChild(grid);
+                } else if (q.type === 'order') {
+                    this.renderSentenceOrder(area, q);
+                }
+            },
+
+            checkChoiceAnswer(userChoice, correctChoice, explanation, btnElement) {
+                // Disable all option buttons immediately
+                const area = document.getElementById('interactive-area');
+                const buttons = area.querySelectorAll('button');
+                buttons.forEach(b => b.disabled = true);
+
+                const feedback = document.getElementById('feedback-area');
+                feedback.classList.remove('hidden');
+
+                if (userChoice === correctChoice) {
+                    GameController.addPoints(10);
+                    btnElement.classList.add('bg-emerald-600', 'text-white', 'border-emerald-400');
+                    feedback.className = 'rounded-2xl p-4 text-left font-semibold text-sm bg-emerald-500/10 border border-emerald-500/30 text-emerald-300';
+                    feedback.innerHTML = `<i class="fa-solid fa-circle-check text-base mr-2"></i><strong>¡Correcto! (+10 pts)</strong> ${explanation}`;
+                } else {
+                    btnElement.classList.add('bg-rose-600', 'text-white', 'border-rose-400');
+                    feedback.className = 'rounded-2xl p-4 text-left font-semibold text-sm bg-rose-500/10 border border-rose-500/30 text-rose-300';
+                    feedback.innerHTML = `<i class="fa-solid fa-circle-xmark text-base mr-2"></i><strong>Incorrecto.</strong> ${explanation}`;
+                }
+
+                document.getElementById('btn-next-q').classList.remove('hidden');
+            },
+
+            // SENTENCE ORDER BUILDER
+            renderSentenceOrder(container, q) {
+                let selectedWords = [];
+                const shuffled = [...q.words].sort(() => 0.5 - Math.random());
+
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        <div id="target-sentence-zone" class="min-h-[60px] bg-slate-900 border-2 border-dashed border-purple-500/40 rounded-2xl p-3 flex flex-wrap gap-2 items-center justify-center">
+                            <span class="text-xs text-slate-500 italic" id="placeholder-text">Haz clic en las palabras de abajo para construir la oración...</span>
+                        </div>
+                        <div id="words-pool" class="flex flex-wrap gap-2 justify-center"></div>
+                        <button id="btn-check-order" class="glow-button py-2.5 px-6 rounded-xl font-bold text-white text-sm">
+                            Comprobar Respuesta
+                        </button>
+                    </div>
+                `;
+
+                const targetZone = document.getElementById('target-sentence-zone');
+                const pool = document.getElementById('words-pool');
+                const placeholder = document.getElementById('placeholder-text');
+
+                const updateChips = () => {
+                    targetZone.innerHTML = '';
+                    if (selectedWords.length === 0) {
+                        targetZone.appendChild(placeholder);
+                    } else {
+                        selectedWords.forEach((word, idx) => {
+                            const chip = document.createElement('button');
+                            chip.className = 'chip bg-purple-600 hover:bg-purple-700 text-white font-bold px-3 py-1.5 rounded-xl text-sm flex items-center gap-1 shadow';
+                            chip.innerHTML = `${word} <i class="fa-solid fa-xmark text-xs"></i>`;
+                            chip.onclick = () => {
+                                selectedWords.splice(idx, 1);
+                                updateChips();
+                                renderPool();
+                            };
+                            targetZone.appendChild(chip);
+                        });
+                    }
+                };
+
+                const renderPool = () => {
+                    pool.innerHTML = '';
+                    shuffled.forEach((word) => {
+                        // Count how many times word is used
+                        const countInSelected = selectedWords.filter(w => w === word).length;
+                        const countInShuffled = shuffled.filter(w => w === word).length;
+
+                        if (countInSelected < countInShuffled) {
+                            const chip = document.createElement('button');
+                            chip.className = 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold px-3 py-1.5 rounded-xl text-sm transition';
+                            chip.innerText = word;
+                            chip.onclick = () => {
+                                selectedWords.push(word);
+                                updateChips();
+                                renderPool();
+                            };
+                            pool.appendChild(chip);
+                        }
+                    });
+                };
+
+                renderPool();
+
+                document.getElementById('btn-check-order').onclick = () => {
+                    const built = selectedWords.join(' ');
+                    const feedback = document.getElementById('feedback-area');
+                    feedback.classList.remove('hidden');
+
+                    if (built === q.answer) {
+                        GameController.addPoints(10);
+                        feedback.className = 'rounded-2xl p-4 text-left font-semibold text-sm bg-emerald-500/10 border border-emerald-500/30 text-emerald-300';
+                        feedback.innerHTML = `<i class="fa-solid fa-circle-check text-base mr-2"></i><strong>¡Excelente! (+10 pts)</strong> ${q.explanation}`;
+                    } else {
+                        feedback.className = 'rounded-2xl p-4 text-left font-semibold text-sm bg-rose-500/10 border border-rose-500/30 text-rose-300';
+                        feedback.innerHTML = `<i class="fa-solid fa-circle-xmark text-base mr-2"></i><strong>Inténtalo de nuevo.</strong> Solución correcta: "${q.answer}"`;
+                    }
+                    document.getElementById('btn-check-order').disabled = true;
+                    document.getElementById('btn-next-q').classList.remove('hidden');
+                };
+            },
+
+            nextQuestion() {
+                GameController.currentSession.currentIndex += 1;
+                this.renderStandardQuestion();
+            },
+
+
+            // ========================================================
+            // E. GENUINE INTERACTIVE WORD SEARCH (SOPA DE LETRAS)
+            // ========================================================
+            renderWordSearch() {
+                document.getElementById('gameplay-title').innerText = 'SOPA DE LETRAS 🔎';
+                document.getElementById('gameplay-progress').innerText = 'Encuentra las palabras gramaticales';
+
+                const wordsToFind = ['PRONOUN', 'PLURAL', 'VERB', 'ARTICLE', 'SUBJECT'];
+                const gridSize = 10;
+                
+                // Construct Grid
+                let grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(''));
+
+                // Simple Word Placement
+                const placements = [
+                    { word: 'PRONOUN', r: 1, c: 1, dir: 'H' },
+                    { word: 'PLURAL', r: 3, c: 2, dir: 'H' },
+                    { word: 'VERB', r: 5, c: 1, dir: 'H' },
+                    { word: 'ARTICLE', r: 7, c: 2, dir: 'H' },
+                    { word: 'SUBJECT', r: 0, c: 8, dir: 'V' }
+                ];
+
+                placements.forEach(p => {
+                    for (let i = 0; i < p.word.length; i++) {
+                        if (p.dir === 'H') grid[p.r][p.c + i] = p.word[i];
+                        else grid[p.r + i][p.c] = p.word[i];
+                    }
+                });
+
+                // Fill remaining with random letters
+                const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                for (let r = 0; r < gridSize; r++) {
+                    for (let c = 0; c < gridSize; c++) {
+                        if (!grid[r][c]) {
+                            grid[r][c] = letters[Math.floor(Math.random() * letters.length)];
+                        }
+                    }
+                }
+
+                const container = document.getElementById('minigame-container');
+                container.innerHTML = `
+                    <div class="w-full max-w-2xl flex flex-col md:flex-row gap-6 items-center md:items-start">
+                        <!-- GRID -->
+                        <div class="ws-grid w-full max-w-[360px]" style="grid-template-columns: repeat(${gridSize}, minmax(0, 1fr));">
+                            ${grid.map((row, r) => row.map((char, c) => `
+                                <div class="ws-cell" data-r="${r}" data-c="${c}">${char}</div>
+                            `).join('')).join('')}
+                        </div>
+
+                        <!-- WORD BANK -->
+                        <div class="w-full md:w-48 glass-card p-4 rounded-2xl space-y-3 text-left">
+                            <h4 class="font-bold text-sm text-yellow-400 border-b border-slate-700 pb-2 flex items-center justify-between">
+                                <span>Palabras</span>
+                                <span id="ws-found-count" class="text-xs text-slate-300">0/5</span>
+                            </h4>
+                            <div id="ws-words-list" class="space-y-1.5">
+                                ${wordsToFind.map(w => `
+                                    <div id="ws-word-${w}" class="text-xs font-extrabold tracking-wider text-slate-300 flex items-center justify-between p-1.5 bg-slate-900/60 rounded-lg">
+                                        <span>${w}</span>
+                                        <i class="fa-solid fa-circle-check text-slate-600 text-sm status-icon"></i>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Interactive Selection Logic
+                let selectedCells = [];
+                let foundWords = [];
+
+                const cells = container.querySelectorAll('.ws-cell');
+                cells.forEach(cell => {
+                    cell.onclick = () => {
+                        const r = cell.dataset.r;
+                        const c = cell.dataset.c;
+
+                        if (cell.classList.contains('selecting')) {
+                            cell.classList.remove('selecting');
+                            selectedCells = selectedCells.filter(item => !(item.r === r && item.c === c));
+                        } else {
+                            cell.classList.add('selecting');
+                            selectedCells.push({ r, c, char: cell.innerText, el: cell });
+                        }
+
+                        // Check formed word
+                        const currentStr = selectedWordsString(selectedCells);
+                        const matched = wordsToFind.find(w => w === currentStr || w === currentStr.split('').reverse().join(''));
+
+                        if (matched && !foundWords.includes(matched)) {
+                            foundWords.push(matched);
+                            GameController.addPoints(10);
+
+                            selectedCells.forEach(item => {
+                                item.el.classList.remove('selecting');
+                                item.el.classList.add('found');
+                            });
+                            selectedCells = [];
+
+                            // Update Word Bank Item
+                            const bankItem = document.getElementById(`ws-word-${matched}`);
+                            bankItem.classList.add('line-through', 'text-emerald-400');
+                            bankItem.querySelector('.status-icon').className = 'fa-solid fa-circle-check text-emerald-400 text-sm status-icon';
+
+                            document.getElementById('ws-found-count').innerText = `${foundWords.length}/5`;
+
+                            if (foundWords.length === wordsToFind.length) {
+                                setTimeout(() => {
+                                    GameController.finishGame('Sopa de Letras Completada 🔎');
+                                }, 600);
+                            }
+                        }
+                    };
+                });
+
+                function selectedWordsString(arr) {
+                    return arr.map(a => a.char).join('');
+                }
+            },
+
+
+            // ========================================================
+            // F. GENUINE INTERACTIVE CROSSWORD (CRUCIGRAMA)
+            // ========================================================
+            renderCrossword() {
+                document.getElementById('gameplay-title').innerText = 'CRUCIGRAMA ✏️';
+                document.getElementById('gameplay-progress').innerText = 'Completa las palabras con las pistas';
+
+                // Grid layout (5x5)
+                // 1. Across: NOUN (0,0)
+                // 2. Down: NOT (0,0)
+                // 3. Across: ARE (2,2)
+                const gridData = [
+                    [{ char: 'N', num: 1 }, { char: 'O', num: null }, { char: 'U', num: null }, { char: 'N', num: null }, null],
+                    [{ char: 'O', num: null }, null, null, null, null],
+                    [{ char: 'T', num: null }, null, { char: 'A', num: 2 }, { char: 'R', num: null }, { char: 'E', num: null }],
+                    [null, null, null, null, null],
+                    [null, null, null, null, null]
+                ];
+
+                const container = document.getElementById('minigame-container');
+                container.innerHTML = `
+                    <div class="w-full max-w-xl flex flex-col md:flex-row gap-6 items-center md:items-start">
+                        
+                        <!-- CROSSWORD GRID -->
+                        <div class="cw-grid w-full max-w-[280px]" style="grid-template-columns: repeat(5, minmax(0, 1fr));">
+                            ${gridData.map((row, r) => row.map((cell, c) => {
+                                if (!cell) return `<div class="cw-cell-container cw-cell-black"></div>`;
+                                return `
+                                    <div class="cw-cell-container cw-cell-white" data-r="${r}" data-c="${c}" data-char="${cell.char}">
+                                        ${cell.num ? `<span class="cw-number">${cell.num}</span>` : ''}
+                                        <input type="text" maxlength="1" class="cw-input" />
+                                    </div>
+                                `;
+                            }).join('')).join('')}
+                        </div>
+
+                        <!-- CLUES & ACTIONS -->
+                        <div class="w-full md:w-56 space-y-4 text-left">
+                            <div class="glass-card p-4 rounded-2xl space-y-3">
+                                <h4 class="font-bold text-xs text-yellow-400 uppercase tracking-wider border-b border-slate-700 pb-1">Pistas Horizontales</h4>
+                                <p class="text-xs text-slate-300"><strong>1.</strong> Sustantivo en inglés (Nombre de persona, animal o cosa).</p>
+                                <p class="text-xs text-slate-300"><strong>2.</strong> Plural del verbo To Be para You/We/They.</p>
+                                
+                                <h4 class="font-bold text-xs text-yellow-400 uppercase tracking-wider border-b border-slate-700 pb-1 pt-2">Pistas Verticales</h4>
+                                <p class="text-xs text-slate-300"><strong>1.</strong> Palabra usada para negar en inglés.</p>
+                            </div>
+
+                            <button id="btn-check-crossword" onclick="MinigameEngine.checkCrossword()" class="w-full glow-button py-3 rounded-xl font-bold text-white text-xs flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-check"></i>
+                                <span>Comprobar Crucigrama</span>
+                            </button>
+                        </div>
+
+                    </div>
+                `;
+
+                // Auto-advance input focus
+                const inputs = container.querySelectorAll('.cw-input');
+                inputs.forEach((input) => {
+                    input.oninput = (e) => {
+                        if (e.target.value) {
+                            const parent = e.target.parentElement;
+                            const next = parent.nextElementSibling?.querySelector('.cw-input');
+                            if (next) next.focus();
+                        }
+                    };
+                });
+            },
+
+            checkCrossword() {
+                const container = document.getElementById('minigame-container');
+                const whiteCells = container.querySelectorAll('.cw-cell-white');
+                let allCorrect = true;
+
+                whiteCells.forEach(cell => {
+                    const input = cell.querySelector('.cw-input');
+                    const expected = cell.dataset.char;
+                    const val = (input.value || '').toUpperCase();
+
+                    cell.classList.remove('correct', 'incorrect');
+                    if (val === expected) {
+                        cell.classList.add('correct');
+                    } else {
+                        cell.classList.add('incorrect');
+                        allCorrect = false;
+                    }
+                });
+
+                if (allCorrect) {
+                    GameController.addPoints(30);
+                    setTimeout(() => {
+                        GameController.finishGame('Crucigrama Completado ✏️');
+                    }, 500);
+                }
+            }
+        };
+
+        // Initialize App on Window Load
+        window.onload = () => {
+            UIController.init();
+        };
+    </script>
+</body>
+</html>
